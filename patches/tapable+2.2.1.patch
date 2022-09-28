@@ -1,0 +1,26 @@
+diff --git a/node_modules/tapable/lib/Hook.js b/node_modules/tapable/lib/Hook.js
+index db04426..5ccbe7d 100644
+--- a/node_modules/tapable/lib/Hook.js
++++ b/node_modules/tapable/lib/Hook.js
+@@ -4,7 +4,7 @@
+ */
+ "use strict";
+ 
+-const util = require("util");
++const util = require("./util-browser");
+ 
+ const deprecateContext = util.deprecate(() => {},
+ "Hook.context is deprecated and will be removed");
+diff --git a/node_modules/tapable/lib/HookMap.js b/node_modules/tapable/lib/HookMap.js
+index 129ad6a..7ab5d5f 100644
+--- a/node_modules/tapable/lib/HookMap.js
++++ b/node_modules/tapable/lib/HookMap.js
+@@ -4,7 +4,7 @@
+ */
+ "use strict";
+ 
+-const util = require("util");
++const util = require("./util-browser");
+ 
+ const defaultFactory = (key, hook) => hook;
+ 

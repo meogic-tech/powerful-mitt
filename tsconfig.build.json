@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "./.ts-temp",
+    "strict": true
+  },
+  "exclude": [
+    "**/test/**",
+    "node_modules/**/*",
+  ],
+  "extends": "./tsconfig.json"
+}

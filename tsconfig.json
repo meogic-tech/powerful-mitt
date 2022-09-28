@@ -1,0 +1,29 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+	"strict": true,
+	"noEmit": true,
+	"declaration": true,
+	"moduleResolution": "node",
+	"sourceMap": true,
+	"skipLibCheck": true,
+	"noImplicitAny": true,
+	"noEmitOnError": true,
+	"noUnusedLocals": true,
+	"strictNullChecks": true,
+	"resolveJsonModule": true,
+	"esModuleInterop": true,
+	"lib": [
+	  "ESNext",
+	  "DOM"
+	],
+	"types": [
+	  "mocha",
+	  "node"
+	]
+  },
+  "include": [
+	"src/*.ts",
+	"test/*.ts"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "name": "powerful-mitt2",
+  "version": "0.1.5",
+  "description": "Powerful Emitter",
+  "main": "PowerfulEmit.js",
+  "scripts": {
+    "test": "npm-run-all --silent typecheck mocha ",
+    "mocha": "NODE_ENV=development mocha",
+    "typecheck": "tsc --noEmit",
+    "build": "node script/build.js",
+    "build-prod": "npm run build -- --prod",
+    "build-release": "npm run build-prod -- --release",
+    "clean": "rimraf dist npm node_modules .ts-temp",
+    "postinstall":"patch-package",
+    "prepare-release": "npm run build-release && node ./script/prepare-release.js",
+    "release": "npm run prepare-release && node ./script/release.js"
+  },
+  "repository": "developit/mitt",
+  "browser": {
+    "util": "src/util-browser.js"
+  },
+  "keywords": [
+    "events",
+    "eventemitter",
+    "emitter",
+    "pubsub"
+  ],
+  "homepage": "https://github.com/developit/mitt",
+  "authors": [
+    "Jason Miller <jason@developit.ca>"
+  ],
+  "license": "MIT",
+  "mocha": {
+    "extension": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register",
+      "esm"
+    ],
+    "spec": [
+      "test/*_test.ts"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "developit",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "sourceType": "module"
+    },
+    "env": {
+      "browser": true,
+      "mocha": true,
+      "jest": false,
+      "es6": true
+    },
+    "globals": {
+      "expect": true
+    },
+    "rules": {
+      "semi": 0,
+      "jest/valid-expect": 0,
+      "brace-style": 0,
+      "no-trailing-spaces": 0,
+      "@typescript-eslint/no-extraneous-class": 1,
+      "@typescript-eslint/ban-types": 0,
+      "@typescript-eslint/ban-ts-comment": 0,
+      "@typescript-eslint/no-explicit-any": 0,
+      "@typescript-eslint/explicit-function-return-type": 0,
+      "@typescript-eslint/explicit-module-boundary-types": 0,
+      "@typescript-eslint/no-empty-function": 0,
+      "@typescript-eslint/no-non-null-assertion": 0
+    }
+  },
+  "eslintIgnore": [
+    "dist",
+    "index.d.ts"
+  ],
+  "devDependencies": {
+    "@ampproject/rollup-plugin-closure-compiler": "^0.27.0",
+    "@babel/preset-typescript": "^7.18.6",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-replace": "^4.0.0",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/sinon": "^9.0.4",
+    "@types/sinon-chai": "^3.2.4",
+    "@typescript-eslint/eslint-plugin": "^3.0.1",
+    "@typescript-eslint/parser": "^3.0.1",
+    "chai": "^4.2.0",
+    "child-process-promise": "^2.2.1",
+    "documentation": "^13.0.0",
+    "eslint": "^7.1.0",
+    "eslint-config-developit": "^1.2.0",
+    "esm": "^3.2.25",
+    "fs-extra": "^10.1.0",
+    "microbundle": "^0.12.3",
+    "minimist": "^1.2.6",
+    "mocha": "^8.0.1",
+    "npm-run-all": "^4.1.5",
+    "patch-package": "^6.4.7",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.79.1",
+    "sinon": "^9.0.2",
+    "sinon-chai": "^3.5.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "tapable": "^2.2.1"
+  }
+}
