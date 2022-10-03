@@ -87,7 +87,7 @@ export function createEmitter(config: {
 	priority?: boolean,
 	commandNest?: boolean,
 	failEmit?: boolean,
-}) {
+} = {}) {
 	const emitter = new Emitter()
 	if (config.priority) {
 		emitter.use(new PriorityHook())

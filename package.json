@@ -1,6 +1,6 @@
 {
-  "name": "powerful-mitt2",
-  "version": "0.1.5",
+  "name": "powerful-mitt",
+  "version": "4.0.1",
   "description": "Powerful Emitter",
   "main": "PowerfulEmit.js",
   "scripts": {
@@ -16,9 +16,6 @@
     "release": "npm run prepare-release && node ./script/release.js"
   },
   "repository": "developit/mitt",
-  "browser": {
-    "util": "src/util-browser.js"
-  },
   "keywords": [
     "events",
     "eventemitter",
