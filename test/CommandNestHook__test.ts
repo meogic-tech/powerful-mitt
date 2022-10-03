@@ -134,4 +134,32 @@ describe('command nest hook', () => {
 		expect(g).to.have.been.calledOnce;
 		expect(h).to.have.been.calledOnce;
 	})
+	it('should create nest command exactly same', async () => {
+		assert.equal(
+			createCommand('aaaa'),
+			createCommand('aaaa')
+		)
+		// @ts-ignore
+		let commands = []
+		const funcA = async () => {
+			commands.push(createCommand('aaaa'))
+		}
+		funcA()
+		funcA()
+		await Promise.resolve().then();
+		assert.equal(
+			// @ts-ignore
+			commands[0],
+			// @ts-ignore
+			commands[1],
+		)
+		assert.equal(
+			createNestCommand(NODE_COMMAND, CHANGE_COMMAND,
+				createCommand('aaaa')
+			),
+			createNestCommand(NODE_COMMAND, CHANGE_COMMAND,
+				createCommand('aaaa')
+			)
+		)
+	})
 })

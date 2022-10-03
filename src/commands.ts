@@ -1,5 +1,3 @@
-import { COMMAND_NAME_DUPLICATE_ERROR } from './errors';
-
 export type AsArray<T> = T extends any[] ? T : [T];
 
 export type MittCommand<TPayload, Return> = {
@@ -44,12 +42,13 @@ let commandNameCache: Map<string, MittCommand<unknown, unknown>> = new Map()
  */
 export function createCommand<T, R>(name: string): MittCommand<T, R> {
 	if (commandNameCache.has(name)) {
-		throw COMMAND_NAME_DUPLICATE_ERROR
+		console.warn('COMMAND_NAME_DUPLICATE_ERROR when create name')
+		// @ts-ignore
+		return commandNameCache.get(name)
 	}
 	commandNameCache.set(name, { name })
-	return {
-		name
-	};
+	// @ts-ignore
+	return commandNameCache.get(name);
 }
 
 export const ALL_COMMAND = createCommand<Array<unknown>, void>('*')
