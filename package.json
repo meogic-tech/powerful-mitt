@@ -1,6 +1,6 @@
 {
   "name": "powerful-mitt",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Powerful Emitter",
   "main": "PowerfulEmit.js",
   "scripts": {
@@ -15,16 +15,16 @@
     "prepare-release": "npm run build-release && node ./script/prepare-release.js",
     "release": "npm run prepare-release && node ./script/release.js"
   },
-  "repository": "developit/mitt",
+  "repository": "meogic-tech/powerful-mitt",
   "keywords": [
     "events",
     "eventemitter",
     "emitter",
     "pubsub"
   ],
-  "homepage": "https://github.com/developit/mitt",
+  "homepage": "https://github.com/meogic-tech/powerful-mitt",
   "authors": [
-    "Jason Miller <jason@developit.ca>"
+    "aquarius-wing <aquarius_wing@icloud.com>"
   ],
   "license": "MIT",
   "mocha": {
