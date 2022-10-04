@@ -176,22 +176,21 @@ export class CommandNestHook implements EmitterPlugin {
 
 	private off<P, R>(
 		done: boolean,
-		type: MittCommand<P, R>,
+		command: MittCommand<P, R>,
 		handler: CommandListener<unknown, unknown> | undefined,
 		options: { [key: string]: any }): boolean {
 		if (done) {
 			return true
 		}
+		debug('CommandNestHook, off')
 		this.findSubCommand(this.commandMap, (array) => {
 			const handlerToDelete = []
-			const targetHandlers = Array.from(this.parent.all!.values())
+			const targetHandlers = this.parent.all!.get(command)!
 			for (const handler of array) {
 				let isFound = false
-				for (const targetHandlerArray of targetHandlers) {
-					for (const targetHandler of targetHandlerArray) {
-						if (handler === targetHandler) {
-							isFound = true
-						}
+				for (const targetHandler of targetHandlers) {
+					if (handler === targetHandler) {
+						isFound = true
 					}
 				}
 				if (!isFound) {
@@ -213,7 +212,7 @@ export class CommandNestHook implements EmitterPlugin {
 		}
 		if (values.length > 0) {
 			for (const value of values) {
-				if (Array.isArray(values[0])) {
+				if (Array.isArray(value)) {
 					callbackWhenChildIsArray(value as Array<CommandListener<unknown, unknown>>)
 				} else {
 					this.findSubCommand(value as CommandNest, callbackWhenChildIsArray)

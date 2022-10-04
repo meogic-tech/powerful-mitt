@@ -40,7 +40,11 @@ export class FailEmitHook implements EmitterPlugin {
 			}
 			for (const handler of (handlers as Array<CommandListener<unknown, unknown>>)) {
 				const result = handler(...args);
-				if (result){
+				// @ts-ignore
+				if (result !== undefined && (result as Promise)!.then !== undefined){
+					console.warn('when function is async, FailEmitHook will not working')
+				}
+				if (result === true){
 					break
 				}
 			}
@@ -52,7 +56,7 @@ export class FailEmitHook implements EmitterPlugin {
 			}
 			for (const handler of (handlers as Array<CommandListener<Array<unknown>, unknown>>)) {
 				const result = handler(command, args);
-				if (result){
+				if (result !== undefined || result !== Promise.resolve(undefined)){
 					break
 				}
 			}

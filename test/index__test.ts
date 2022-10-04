@@ -234,4 +234,53 @@ describe('multi hook', () => {
 		emitter.emit(createNestCommand(NODE_COMMAND, ALL_COMMAND), '')
 		assert.deepEqual(result, [ 'c', 'b', 'b' ])
 	})
+
+	it('should async execute correct', async () => {
+
+		const emitter = createEmitter({
+			key: true,
+			priority: true,
+			failEmit: true,
+			commandNest: true
+		});
+		const result: string[] = []
+		const func1 = async () => {
+			result.push('func1')
+		}
+		const func2 = async () => {
+			result.push('func2')
+		}
+		emitter.on(createNestCommand(NODE_COMMAND), func1)
+		emitter.on(createNestCommand(NODE_COMMAND), func2)
+		emitter.emit(createNestCommand(NODE_COMMAND))
+		assert.deepEqual(result, ['func1', 'func2'])
+	})
+	it('should off right', () => {
+		const emitter = createEmitter({
+			key: true,
+			priority: true,
+			failEmit: true,
+			commandNest: true
+		});
+		const DOCUMENT_NOTE_UPDATED_A_COMMAND = createNestCommand(createCommand('DOCUMENT'), createCommand('NOTE_UPDATED'), createCommand('a'))
+		const log: string[] = []
+		const a = async () => {
+			log.push('a')
+		}
+		const b = async () => {
+			log.push('b')
+		}
+		emitter.on(DOCUMENT_NOTE_UPDATED_A_COMMAND, a, {
+			key: 'a'
+		})
+		emitter.on(DOCUMENT_NOTE_UPDATED_A_COMMAND, b, {
+			key: 'b'
+		})
+		emitter.emit(DOCUMENT_NOTE_UPDATED_A_COMMAND, '')
+		emitter.off(DOCUMENT_NOTE_UPDATED_A_COMMAND, undefined, {
+			key: 'a'
+		})
+		emitter.emit(DOCUMENT_NOTE_UPDATED_A_COMMAND, '')
+		assert.deepEqual(log, ['a', 'b', 'b'])
+	})
 })

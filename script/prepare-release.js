@@ -3,6 +3,7 @@
 const { exec } = require('child-process-promise');
 
 async function prepare() {
+	await exec(`npm run test`)
 	await exec(`rm -rf npm`)
 	await exec(`mkdir npm`)
 	await exec(`cp -R dist/* npm`)
