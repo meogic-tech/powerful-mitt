@@ -26,6 +26,9 @@ describe('command nest hook', () => {
 	const f = spy()
 	const g = spy()
 	const h = spy()
+	beforeEach(() => {
+		[a, b, c, d, e, f, g, h].map((func) => func.resetHistory())
+	})
 
 	const func1: CommandListener<[string], boolean> = (id: string) => {
 		// console.log(id)
@@ -161,5 +164,21 @@ describe('command nest hook', () => {
 				createCommand('aaaa')
 			)
 		)
+	})
+	it('should execute right when level different', () => {
+		const emitter = new Emitter();
+		const hook = new CommandNestHook()
+		emitter.use(hook)
+		const UPDATE_COMMAND = createCommand('UPDATE')
+		const ADD_COMMAND = createCommand('ADD')
+		emitter.on(createNestCommand(NODE_COMMAND, CHANGE_COMMAND, X_COMMAND), a)
+		emitter.on(createNestCommand(NODE_COMMAND, UPDATE_COMMAND), b)
+		emitter.emit(createNestCommand(NODE_COMMAND, CHANGE_COMMAND, X_COMMAND))
+
+		expect(a).to.have.been.calledOnce;
+		expect(b).to.have.been.callCount(0);
+		emitter.emit(createNestCommand(NODE_COMMAND, ADD_COMMAND))
+		expect(a).to.have.been.calledOnce;
+		expect(b).to.have.been.callCount(0);
 	})
 })

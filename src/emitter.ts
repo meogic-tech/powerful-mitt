@@ -14,6 +14,7 @@ export interface EmitterHooks {
 	]>
 	beforeEmitHook: SyncWaterfallHook<[boolean, MittCommand<unknown, unknown>, AsArray<unknown>]>,
 	emitHook: SyncWaterfallHook<[boolean, MittCommand<unknown, unknown>, AsArray<unknown>]>,
+	executeHook: SyncWaterfallHook<[MittCommand<unknown, unknown>, CommandListener<unknown, unknown>, AsArray<unknown>]>,
 	afterEmitHook: SyncWaterfallHook<[boolean, MittCommand<unknown, unknown>, AsArray<unknown>]>,
 	offHook: SyncWaterfallHook<[boolean, MittCommand<unknown, unknown>,
 			CommandListener<unknown, unknown> | undefined,
@@ -34,6 +35,7 @@ export class Emitter {
 			onHook: new SyncWaterfallHook(['done', 'type', 'handler', 'options']),
 			beforeEmitHook: new SyncWaterfallHook(['done', 'type', 'event']),
 			emitHook: new SyncWaterfallHook(['done', 'type', 'event']),
+			executeHook: new SyncWaterfallHook(['command', 'handler', 'event']),
 			afterEmitHook: new SyncWaterfallHook(['done', 'type', 'event']),
 			offHook: new SyncWaterfallHook(['done', 'type', 'handler', 'options'])
 		}

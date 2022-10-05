@@ -39,6 +39,7 @@ export class FailEmitHook implements EmitterPlugin {
 				handlers = handlers.reverse()
 			}
 			for (const handler of (handlers as Array<CommandListener<unknown, unknown>>)) {
+				this.parent.hooks!.executeHook.call(command, handler, args)
 				const result = handler(...args);
 				// @ts-ignore
 				if (result !== undefined && (result as Promise)!.then !== undefined){
@@ -55,6 +56,8 @@ export class FailEmitHook implements EmitterPlugin {
 				handlers = handlers.reverse()
 			}
 			for (const handler of (handlers as Array<CommandListener<Array<unknown>, unknown>>)) {
+				// Here must be hooks!, otherwise closure-compiler will throw PLUGIN_ERROR when `npm run build-prod`
+				this.parent.hooks!.executeHook.call(command, handler, args)
 				const result = handler(command, args);
 				if (result !== undefined || result !== Promise.resolve(undefined)){
 					break

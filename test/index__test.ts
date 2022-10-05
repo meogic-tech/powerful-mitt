@@ -1,5 +1,6 @@
-import { Emitter } from '../src/emitter'
-import { createEmitter } from '../src';
+import { Emitter, EmitterHooks } from '../src/emitter'
+// @ts-ignore
+import { createEmitter, MittCommand, CommandListener, AsArray, EmitterPlugin } from '../src';
 import chai, {  expect, assert } from 'chai';
 import { spy } from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -282,5 +283,35 @@ describe('multi hook', () => {
 		})
 		emitter.emit(DOCUMENT_NOTE_UPDATED_A_COMMAND, '')
 		assert.deepEqual(log, ['a', 'b', 'b'])
+	})
+	it('should execute executeHook right', () => {
+		const emitter = createEmitter({
+			key: true,
+			priority: true,
+			failEmit: true,
+			commandNest: true
+		});
+		const log: string[] = []
+		class EmitLogHook implements EmitterPlugin{
+			name: string
+
+			constructor() {
+				this.name = 'EmitLogHook';
+			}
+
+			register(hooks: EmitterHooks, parent: EmitterPlugin): void {
+				// @ts-ignore
+				hooks.executeHook.tap(this.name, (command, handler) => {
+					log.push(`execute ${command.name} ${handler.name}`)
+					console.log(`execute ${command.name} ${handler.name}`)
+				})
+			}
+
+		}
+		emitter.use(new EmitLogHook())
+		emitter.on(FOO_COMMAND, a)
+		emitter.emit(FOO_COMMAND, '')
+		assert.deepEqual(log, ['execute foo a'])
+
 	})
 })

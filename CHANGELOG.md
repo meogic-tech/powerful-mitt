@@ -1,3 +1,13 @@
+# 4.0.8
+
+## Optimize
+- Add executeHook
+
+# 4.0.7
+
+## Optimize
+- Export EmitterPlugin
+
 # 4.0.6
 
 ## Fix

@@ -15,6 +15,7 @@ export class BaseHook implements EmitterPlugin{
 	name: string
 
 	all: Commands
+	hooks!: EmitterHooks;
 
 	constructor(all: Commands) {
 		this.all = all;
@@ -22,6 +23,7 @@ export class BaseHook implements EmitterPlugin{
 	}
 
 	register(hooks: EmitterHooks, parent: EmitterPlugin): void {
+		this.hooks = hooks
 		hooks.onHook.tap(this.name, this.on.bind(this))
 		hooks.emitHook.tap(this.name, this.emit.bind(this))
 		hooks.offHook.tap(this.name, this.off.bind(this))
@@ -75,6 +77,7 @@ export class BaseHook implements EmitterPlugin{
 			(handlers as Array<CommandListener<unknown, unknown>>)
 				.slice()
 				.map((handler) => {
+					this.hooks.executeHook.call(command, handler, args)
 					handler(...args);
 				});
 		}
@@ -83,6 +86,7 @@ export class BaseHook implements EmitterPlugin{
 			(handlers as Array<CommandListener<Array<unknown>, void>>)
 				.slice()
 				.map((handler) => {
+					this.hooks.executeHook.call(command, handler, args)
 					handler(command, args);
 				});
 		}
