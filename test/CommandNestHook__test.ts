@@ -66,8 +66,11 @@ describe('command nest hook', () => {
 	})
 	it('should three level all listeners, use on func in emitter', () => {
 		const emitter = new Emitter();
+		// emitter.use(new PriorityHook())
+		// emitter.use(new KeyHook())
 		const hook = new CommandNestHook()
 		emitter.use(hook)
+		// emitter.use(new FailEmitHook(false))
 		emitter.on(createNestCommand(NODE_COMMAND, CHANGE_COMMAND, X_COMMAND), a)
 		assert.deepEqual(hook.getListenersByCommands(NODE_COMMAND, CHANGE_COMMAND, X_COMMAND), [a])
 		emitter.on(createNestCommand(NODE_COMMAND, CHANGE_COMMAND, Y_COMMAND), b)

@@ -314,4 +314,33 @@ describe('multi hook', () => {
 		assert.deepEqual(log, ['execute foo a'])
 
 	})
+	it('should execute right in complex env', () => {
+		const emitter = createEmitter({
+			key: true,
+			priority: true,
+			failEmit: true,
+			commandNest: true
+		});
+		const DOCUMENT_COMMAND = createCommand('DOCUMENT')
+		const UPDATE_COMMAND = createCommand('UPDATE')
+		const CHOOSE_COMMAND = createCommand('CHOOSE')
+		const ADD_COMMAND = createCommand('ADD')
+		const log: string[] = []
+		const onDocumentChoose = () => {
+			log.push('DOCUMENT_CHOOSE')
+		}
+		emitter.on(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), onDocumentChoose)
+		for (let i = 0; i < 3; i++) {
+			emitter.on(createNestCommand(DOCUMENT_COMMAND, UPDATE_COMMAND, createCommand(i + '')), () => {
+				log.push('DOCUMENT_UPDATE_'+i)
+			})
+		}
+		emitter.on(createNestCommand(DOCUMENT_COMMAND, ADD_COMMAND), () => {
+			log.push('DOCUMENT_ADD')
+		})
+
+		emitter.emit(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), '')
+		emitter.emit(createNestCommand(DOCUMENT_COMMAND, ADD_COMMAND), '')
+		assert.deepEqual(log, ['DOCUMENT_CHOOSE', 'DOCUMENT_ADD'])
+	})
 })

@@ -1,3 +1,8 @@
+# 4.0.9
+
+## Fix
+- When set priority and commandNest as true, the `on` func will set more function to `this.parent.all`
+
 # 4.0.8
 
 ## Optimize

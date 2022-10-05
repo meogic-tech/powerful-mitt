@@ -55,16 +55,25 @@ export class PriorityHook implements EmitterPlugin {
 		this.initialArray(priority)
 		const listenerArray = this.priorityArray[priority]
 		listenerArray.push([command, handler])
+		// this valuable just for filter which handler is in current cmmand
 		const listenerArrayInAll = this.parent.all!.get(command)
+		// Finally this valuable will be `this.parent.all.get(command)`
+		const targetArray:  CommandListener<unknown, unknown>[] = []
 		if (!listenerArrayInAll) {
 			return false
 		}
-		listenerArrayInAll.splice(0, listenerArrayInAll.length)
 		for (let i = this.priorityArray.length-1; i >= 0; i--) {
 			const priorityArrayElement = this.priorityArray[i]
 			for (const [_, handlerInArray] of priorityArrayElement) {
-				listenerArrayInAll.push(handlerInArray)
+				if (listenerArrayInAll.indexOf(handlerInArray) > -1){
+					targetArray.push(handlerInArray)
+				}
 			}
+		}
+		// After find all handler in current command, we will push it back to `this.parent.all.get(command)`
+		listenerArrayInAll.splice(0, listenerArrayInAll.length)
+		for (const targetArrayElement of targetArray) {
+			listenerArrayInAll.push(targetArrayElement)
 		}
 		return false
 	}
