@@ -184,24 +184,31 @@ export class CommandNestHook implements EmitterPlugin {
 			return true
 		}
 		debug('CommandNestHook, off')
-		this.findSubCommand(this.commandMap, (array) => {
-			const handlerToDelete = []
-			const targetHandlers = this.parent.all!.get(command)!
-			for (const handler of array) {
-				let isFound = false
-				for (const targetHandler of targetHandlers) {
-					if (handler === targetHandler) {
-						isFound = true
-					}
-				}
-				if (!isFound) {
-					handlerToDelete.push(handler)
+		let listeners
+		if (command.commands){
+			listeners = this.getListenersByCommands(...command.commands)
+		} else {
+			listeners = this.getListenersByCommands(command)
+		}
+		if (handler){
+			listeners.splice(listeners.indexOf(handler) >>> 0, 1)
+		}
+		const handlerToDelete = []
+		const targetHandlers = this.parent.all!.get(command)!
+		for (const handler of listeners) {
+			let isFound = false
+			for (const targetHandler of targetHandlers) {
+				if (handler === targetHandler) {
+					isFound = true
 				}
 			}
-			for (const handler of handlerToDelete) {
-				array.splice(array.indexOf(handler) >>> 0, 1)
+			if (!isFound) {
+				handlerToDelete.push(handler)
 			}
-		})
+		}
+		for (const handler of handlerToDelete) {
+			listeners.splice(listeners.indexOf(handler) >>> 0, 1)
+		}
 
 		return false
 	}

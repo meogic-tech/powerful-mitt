@@ -58,8 +58,12 @@ describe('base emitter', () => {
 		expect(b).to.have.been.calledOnce;
 		expect(c).to.have.been.calledOnce;
 		expect(d).to.have.been.callCount(2);
-		emitter.off(FOO_COMMAND)
+		emitter.off(FOO_COMMAND, a)
 		emitter.off(CLICK_COMMAND)
+		emitter.emit(FOO_COMMAND, '1', '2')
+		expect(a).to.have.been.calledOnce;
+		expect(b).to.have.been.callCount(2);
+		emitter.off(FOO_COMMAND, b)
 		expect(Array.isArray(emitter.all.get(FOO_COMMAND))).to.deep.equal(true)
 		expect((emitter.all.get(FOO_COMMAND) as Array<any>).length).to.deep.equal(0);
 		expect((emitter.all.get(CLICK_COMMAND) as Array<any>).length).to.deep.equal(0);
@@ -330,11 +334,13 @@ describe('multi hook', () => {
 			log.push('DOCUMENT_CHOOSE')
 		}
 		emitter.on(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), onDocumentChoose)
-		for (let i = 0; i < 3; i++) {
-			emitter.on(createNestCommand(DOCUMENT_COMMAND, UPDATE_COMMAND, createCommand(i + '')), () => {
-				log.push('DOCUMENT_UPDATE_'+i)
-			})
-		}
+		const a0 = () => {log.push('DOCUMENT_UPDATE_0')}
+		emitter.on(createNestCommand(DOCUMENT_COMMAND, UPDATE_COMMAND, createCommand('0')), a0)
+		const a1 = () => {log.push('DOCUMENT_UPDATE_1')}
+		emitter.on(createNestCommand(DOCUMENT_COMMAND, UPDATE_COMMAND, createCommand('1')), a1)
+		const a2 = () => {log.push('DOCUMENT_UPDATE_2')}
+		emitter.on(createNestCommand(DOCUMENT_COMMAND, UPDATE_COMMAND, createCommand('2')), a2)
+
 		emitter.on(createNestCommand(DOCUMENT_COMMAND, ADD_COMMAND), () => {
 			log.push('DOCUMENT_ADD')
 		})
@@ -342,5 +348,11 @@ describe('multi hook', () => {
 		emitter.emit(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), '')
 		emitter.emit(createNestCommand(DOCUMENT_COMMAND, ADD_COMMAND), '')
 		assert.deepEqual(log, ['DOCUMENT_CHOOSE', 'DOCUMENT_ADD'])
+		emitter.off(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), a0)
+		emitter.emit(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), '')
+		assert.deepEqual(log, ['DOCUMENT_CHOOSE', 'DOCUMENT_ADD', 'DOCUMENT_CHOOSE'])
+		emitter.off(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), onDocumentChoose)
+		emitter.emit(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), '')
+		assert.deepEqual(log, ['DOCUMENT_CHOOSE', 'DOCUMENT_ADD', 'DOCUMENT_CHOOSE'])
 	})
 })

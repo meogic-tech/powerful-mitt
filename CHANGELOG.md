@@ -1,3 +1,8 @@
+# 4.0.10
+
+## Fix
+- CommandNest's off function cannot off right
+
 # 4.0.9
 
 ## Fix
