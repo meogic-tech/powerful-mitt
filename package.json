@@ -4,14 +4,13 @@
   "description": "Powerful Emitter",
   "main": "PowerfulEmit.js",
   "scripts": {
-    "test": "npm-run-all --silent typecheck mocha ",
-    "mocha": "NODE_ENV=development mocha",
+    "test": "mocha",
     "typecheck": "tsc --noEmit",
     "build": "node script/build.js",
     "build-prod": "npm run build -- --prod",
     "build-release": "npm run build-prod -- --release",
     "clean": "rimraf dist npm node_modules .ts-temp",
-    "postinstall":"patch-package",
+    "postinstall": "patch-package",
     "prepare-release": "npm run build-release && node ./script/prepare-release.js",
     "release": "npm run prepare-release && node ./script/release.js"
   },
