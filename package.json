@@ -1,6 +1,6 @@
 {
   "name": "powerful-mitt",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "description": "Powerful Emitter",
   "main": "PowerfulEmit.js",
   "scripts": {

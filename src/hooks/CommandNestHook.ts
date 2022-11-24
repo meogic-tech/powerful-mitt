@@ -194,7 +194,10 @@ export class CommandNestHook implements EmitterPlugin {
 			listeners.splice(listeners.indexOf(handler) >>> 0, 1)
 		}
 		const handlerToDelete = []
-		const targetHandlers = this.parent.all!.get(command)!
+		const targetHandlers = this.parent.all!.get(command)
+		if (!targetHandlers){
+			return false
+		}
 		for (const handler of listeners) {
 			let isFound = false
 			for (const targetHandler of targetHandlers) {

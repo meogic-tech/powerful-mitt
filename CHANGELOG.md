@@ -1,3 +1,8 @@
+# 4.0.11
+
+## Fix
+- CommandNest's off function get error when targetHandlers is undefined
+
 # 4.0.10
 
 ## Fix
