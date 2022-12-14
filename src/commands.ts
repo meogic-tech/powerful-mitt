@@ -42,7 +42,7 @@ let commandNameCache: Map<string, MittCommand<unknown, unknown>> = new Map()
  */
 export function createCommand<T, R>(name: string): MittCommand<T, R> {
 	if (commandNameCache.has(name)) {
-		console.warn('COMMAND_NAME_DUPLICATE_ERROR when create name')
+		// console.warn('COMMAND_NAME_DUPLICATE_ERROR when create name')
 		// @ts-ignore
 		return commandNameCache.get(name)
 	}

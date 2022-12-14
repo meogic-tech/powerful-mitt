@@ -77,7 +77,6 @@ export class CommandNestHook implements EmitterPlugin {
 			for (const handler1 of this.parent.all!.get(command) as Array<CommandListener<unknown, unknown>>) {
 				listeners.push(handler1)
 			}
-			console.log(`command${command.name}'s listeners:`, listeners);
 		}
 		return false
 	}

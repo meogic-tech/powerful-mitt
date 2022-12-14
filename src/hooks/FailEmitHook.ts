@@ -43,7 +43,7 @@ export class FailEmitHook implements EmitterPlugin {
 				const result = handler(...args);
 				// @ts-ignore
 				if (result !== undefined && (result as Promise)!.then !== undefined){
-					console.warn('when function is async, FailEmitHook will not working')
+					// console.warn('when function is async, FailEmitHook will not working')
 				}
 				if (result === true){
 					break
