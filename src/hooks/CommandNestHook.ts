@@ -245,7 +245,7 @@ export class CommandNestHook implements EmitterPlugin {
 		if (command.commands && command.commands.length > 0) {
 			this.tempAll = this.parent.all!
 			this.parent.all = new Map()
-			this.parent.all.set(command, this.getListenersByCommands(...command.commands))
+			this.parent.all.set(command, this.getListenersByCommands2(this.commandMap, 0, ...command.commands))
 			return true
 		}
 		return false
@@ -273,9 +273,9 @@ export class CommandNestHook implements EmitterPlugin {
 		debug('CommandNestHook, off')
 		let listeners
 		if (command.commands){
-			listeners = this.getListenersByCommands(...command.commands)
+			listeners = this.getListenersByCommands2(this.commandMap, 0, ...command.commands)
 		} else {
-			listeners = this.getListenersByCommands(command)
+			listeners = this.getListenersByCommands2(this.commandMap, 0, command)
 		}
 		if (handler){
 			listeners.splice(listeners.indexOf(handler) >>> 0, 1)

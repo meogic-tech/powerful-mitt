@@ -230,5 +230,15 @@ describe('command nest hook', () => {
 
 		emitter.emit(createNestCommand(A, D, ALL_COMMAND))
 		expect(log).equal('AB testAC testADE testADF test')
+
+		log = ''
+
+		emitter.emit(createNestCommand(A, ALL_COMMAND))
+		expect(log).equal('AB testAC testADE testADF test')
+
+		log = ''
+
+		emitter.emit(createNestCommand(ALL_COMMAND))
+		expect(log).equal('AB testAC testADE testADF test')
 	})
 })
