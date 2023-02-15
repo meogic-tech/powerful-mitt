@@ -72,15 +72,99 @@ export class CommandNestHook implements EmitterPlugin {
 			return true
 		}
 		if (command.commands && command.commands.length > 0) {
-			const listeners = this.getListenersByCommands(...command.commands)
-			listeners.splice(0, listeners.length)
-			for (const handler1 of this.parent.all!.get(command) as Array<CommandListener<unknown, unknown>>) {
-				listeners.push(handler1)
-			}
+			this.setCommandsToCommandMap(this.commandMap, 0, command, ...command.commands)
 		}
 		return false
 	}
 
+	setCommandsToCommandMap(commandMap: CommandNest, i: number, rootCommand: MittCommand<unknown, unknown>, ...commands: MittCommand<unknown, unknown>[]) {
+		const command = commands[i]
+		if (command === ALL_COMMAND){
+			const listeners = []
+			const newNestCommand = createNestCommand(...commands.slice(0, i + 1))
+			for (const handler1 of this.parent.all!.get(newNestCommand) as Array<CommandListener<unknown, unknown>>) {
+				listeners.push(handler1)
+			}
+			commandMap.set(command, listeners)
+		} else {
+			// 不是最后一个
+			if (i < commands.length - 1){
+				let commandNest = commandMap.get(command) as CommandNest
+				if(commandNest === undefined){
+					commandNest = new Map() as CommandNest
+					commandMap.set(command, commandNest)
+				}
+				this.setCommandsToCommandMap(commandNest, i + 1, rootCommand, ...commands)
+			} else {
+				const listeners = []
+				for (const handler1 of this.parent.all!.get(rootCommand) as Array<CommandListener<unknown, unknown>>) {
+					listeners.push(handler1)
+				}
+				commandMap.set(command, listeners)
+				// console.log("commandMap", commandMap, 'command', command, 'commands', commands.map(c => c.name).join(','));
+			}
+		}
+
+	}
+
+	getListenersByCommands2(commandMap: CommandNest, i: number, ...commands: MittCommand<unknown, unknown>[]): Array<CommandListener<unknown, unknown>> {
+		const resultArray: Array<CommandListener<unknown, unknown>> = []
+		/**
+		 * {
+		 *     "A": [fun1, fun2]
+		 * }
+		 */
+		const command = commands[i]
+		// map or list or undefined
+		if (command === ALL_COMMAND){
+			// 当前所有的子命令就要递归下去
+			// 比如A下面的B、C
+			for (const subCommandMap of Array.from(commandMap.values())) {
+				if (subCommandMap === undefined){
+					// 1. 没有找到，就不处理
+				} else if (Array.isArray(subCommandMap)){
+					// 2. 已经找到对应的监听数组了
+					resultArray.push(...subCommandMap)
+				} else {
+					// 3. 当前A下面还有B，根据AB直接找的话就能就能走到上面的情况1或2，然后就能返回对应的监听数组了
+					/**
+					 * 此时subCommandMap可能是{
+					 *   { name: 'E' } => [ [Function: ADEFunc] ],
+					 *   { name: 'F' } => [ [Function: ADFFunc] ]
+					 * }
+					 * 所以要针对这些subCommand进行递归
+					 */
+					for (const subCommand of Array.from(subCommandMap.keys())) {
+						const subResultArray = this.getListenersByCommands2(subCommandMap, i + 1, ...[...commands.slice(0, i + 1), subCommand, ALL_COMMAND])
+						resultArray.push(...subResultArray)
+					}
+					// console.log('commands', commands.map(c => c.name).join(','), 'command', command.name, "subCommandMap", subCommandMap)
+				}
+				// console.log('commands', commands.map(c => c.name).join(','), 'command', command.name, "listenerList", subCommandMap);
+			}
+
+		} else {
+			const subCommandMap = commandMap.get(command)
+			if (subCommandMap === undefined){
+				// 1. 没有找到，就不处理
+			} else if (Array.isArray(subCommandMap)){
+				// 2. 已经找到对应的监听数组了
+				resultArray.push(...subCommandMap)
+			} else {
+				// 3. 当前A下面还有B，根据AB直接找的话就能就能走到上面的情况1或2，然后就能返回对应的监听数组了
+				const subResultArray = this.getListenersByCommands2(subCommandMap, i + 1, ...commands)
+				resultArray.push(...subResultArray)
+			}
+			// console.log('commands', commands.map(c => c.name).join(','), 'command', command.name, "listenerList", subCommandMap);
+		}
+
+		return resultArray
+	}
+
+	/**
+	 * @deprecated
+	 * @param commands
+	 */
 	getListenersByCommands(...commands: MittCommand<unknown, unknown>[]): Array<CommandListener<unknown, unknown>> {
 		let tempCommandMap: CommandNest = this.commandMap
 		let resultArray: Array<CommandListener<unknown, unknown>> | undefined
@@ -99,6 +183,7 @@ export class CommandNestHook implements EmitterPlugin {
 					isArray = Array.isArray(values[0])
 				}
 				if (isArray) {
+					// [[function1], [function2], [function3]]
 					nestOrListeners = []
 					for (const value of values) {
 						nestOrListeners.push(
@@ -118,6 +203,7 @@ export class CommandNestHook implements EmitterPlugin {
 			} else {
 				nestOrListeners = tempCommandMap.get(command)
 			}
+			// console.log('commands', commands.map(c => c.name).join(','), 'command', command.name, 'nestOrListeners', nestOrListeners)
 			if (nestOrListeners === undefined) {
 				if (i < commands.length - 1) {
 					// not the last, so set nest
@@ -136,10 +222,12 @@ export class CommandNestHook implements EmitterPlugin {
 				// current is ALL_COMMAND
 				i--
 				tempCommandMap = nestOrListeners as CommandNest
+				// console.log('commands', commands.map(c => c.name).join(','), 'command', command.name, 'lastCommandIsAllCommand', lastCommandIsAllCommand)
 			}
 
 		}
 		if (resultArray) {
+			// console.log('commands', commands.map(c => c.name), 'resultArray', resultArray)
 			return resultArray
 		}
 		throw GET_COMMAND_LISTENERS_ERROR

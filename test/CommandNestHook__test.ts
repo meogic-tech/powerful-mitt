@@ -184,4 +184,51 @@ describe('command nest hook', () => {
 		expect(a).to.have.been.calledOnce;
 		expect(b).to.have.been.callCount(0);
 	})
+	it('should getListenersByCommands2 right', () => {
+		const emitter = new Emitter();
+		const hook = new CommandNestHook()
+		emitter.use(hook)
+		const A = createCommand('A')
+		const B = createCommand('B')
+		const C = createCommand('C')
+		const D = createCommand('D')
+		const E = createCommand('E')
+		const F = createCommand('F')
+
+		let log = ''
+		// AB
+		function ABFunc() {
+			log += 'AB test'
+		}
+		emitter.on(createNestCommand(A, B), ABFunc)
+		assert.deepEqual(hook.getListenersByCommands2(hook.commandMap, 0, A, B), [ABFunc])
+
+		// AC
+		function ACFunc() {
+			log += 'AC test'
+		}
+		emitter.on(createNestCommand(A, C), ACFunc)
+		assert.deepEqual(hook.getListenersByCommands2(hook.commandMap, 0, A, C), [ACFunc])
+		assert.deepEqual(hook.getListenersByCommands2(hook.commandMap, 0, A, ALL_COMMAND), [ABFunc,ACFunc])
+
+		// ADE、ADF
+		function ADEFunc() {
+			log += 'ADE test'
+		}
+		emitter.on(createNestCommand(A, D, E), ADEFunc)
+		function ADFFunc() {
+			log += 'ADF test'
+		}
+		emitter.on(createNestCommand(A, D, F), ADFFunc)
+		assert.deepEqual(hook.getListenersByCommands2(hook.commandMap, 0, A, ALL_COMMAND), [ABFunc,ACFunc, ADEFunc, ADFFunc])
+
+		emitter.emit(createNestCommand(A, B))
+		expect(log).equal('AB test')
+
+		emitter.emit(createNestCommand(A, C))
+		expect(log).equal('AB testAC test')
+
+		emitter.emit(createNestCommand(A, D, ALL_COMMAND))
+		expect(log).equal('AB testAC testADE testADF test')
+	})
 })
