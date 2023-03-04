@@ -241,4 +241,13 @@ describe('command nest hook', () => {
 		emitter.emit(createNestCommand(ALL_COMMAND))
 		expect(log).equal('AB testAC testADE testADF test')
 	})
+	it('should off without error', () => {
+		const emitter = new Emitter();
+		const hook = new CommandNestHook()
+		emitter.use(hook)
+		const SYSTEM = createCommand('SYSTEM')
+		const A = createCommand('A')
+		const SYSTEM_A = createNestCommand(SYSTEM, A)
+		emitter.off(SYSTEM_A)
+	})
 })

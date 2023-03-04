@@ -82,8 +82,10 @@ export class CommandNestHook implements EmitterPlugin {
 		if (command === ALL_COMMAND){
 			const listeners = []
 			const newNestCommand = createNestCommand(...commands.slice(0, i + 1))
-			for (const handler1 of this.parent.all!.get(newNestCommand) as Array<CommandListener<unknown, unknown>>) {
-				listeners.push(handler1)
+			if (this.parent.all){
+				for (const handler1 of this.parent.all!.get(newNestCommand) as Array<CommandListener<unknown, unknown>>) {
+					listeners.push(handler1)
+				}
 			}
 			commandMap.set(command, listeners)
 		} else {
@@ -95,7 +97,7 @@ export class CommandNestHook implements EmitterPlugin {
 					commandMap.set(command, commandNest)
 				}
 				this.setCommandsToCommandMap(commandNest, i + 1, rootCommand, ...commands)
-			} else {
+			} else if (Array.isArray(this.parent.all!.get(rootCommand))){
 				const listeners = []
 				for (const handler1 of this.parent.all!.get(rootCommand) as Array<CommandListener<unknown, unknown>>) {
 					listeners.push(handler1)
@@ -271,35 +273,22 @@ export class CommandNestHook implements EmitterPlugin {
 			return true
 		}
 		debug('CommandNestHook, off')
-		let listeners
-		if (command.commands){
-			listeners = this.getListenersByCommands2(this.commandMap, 0, ...command.commands)
-		} else {
-			listeners = this.getListenersByCommands2(this.commandMap, 0, command)
-		}
+		// 先修正全局的all里面的监听
 		if (handler){
-			listeners.splice(listeners.indexOf(handler) >>> 0, 1)
-		}
-		const handlerToDelete = []
-		const targetHandlers = this.parent.all!.get(command)
-		if (!targetHandlers){
-			return false
-		}
-		for (const handler of listeners) {
-			let isFound = false
-			for (const targetHandler of targetHandlers) {
-				if (handler === targetHandler) {
-					isFound = true
+			const handlers = this.parent.all!.get(command);
+			if (handlers && Array.isArray(handlers)) {
+				if (handler) {
+					handlers.splice(handlers.indexOf(handler) >>> 0, 1);
+				}
+				else {
+					this.parent.all!.set(command, []);
 				}
 			}
-			if (!isFound) {
-				handlerToDelete.push(handler)
-			}
 		}
-		for (const handler of handlerToDelete) {
-			listeners.splice(listeners.indexOf(handler) >>> 0, 1)
+		// 然后根据全局的all来修正本插件的commandMap
+		if (command.commands && command.commands.length > 0) {
+			this.setCommandsToCommandMap(this.commandMap, 0, command, ...command.commands)
 		}
-
 		return false
 	}
 
