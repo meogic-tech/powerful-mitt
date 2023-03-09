@@ -355,4 +355,37 @@ describe('multi hook', () => {
 		emitter.emit(createNestCommand(DOCUMENT_COMMAND, CHOOSE_COMMAND), '')
 		assert.deepEqual(log, ['DOCUMENT_CHOOSE', 'DOCUMENT_ADD', 'DOCUMENT_CHOOSE'])
 	})
+	it('should execute right when run serial execution', () => {
+		const emitter = new Emitter()
+		emitter.use(new PriorityHook())
+		emitter.use(new KeyHook())
+		emitter.use(new CommandNestHook())
+		emitter.use(new FailEmitHook(false))
+		const OPEN_LIST_COMMAND = createCommand('OPEN_LIST')
+		const SYSTEM_COMMAND = createCommand('SYSTEM')
+		const DELETE_ITEM_COMMAND = createCommand('DELETE_ITEM')
+		const TAB_ACTIVE_CHANGED_COMMAND = createCommand('TAB_ACTIVE_CHANGED')
+		const TAB_ACTIVE_CHANGED2_COMMAND = createCommand('TAB_ACTIVE_CHANGED2')
+		const log: string[] = []
+		const a0 = () => {log.push('OPEN_LIST_COMMAND')}
+		const a1 = () => {
+			log.push('SYSTEM_DELETE_ITEM')
+			emitter.emit(createNestCommand(SYSTEM_COMMAND, TAB_ACTIVE_CHANGED_COMMAND))
+		}
+		const a2 = () => {
+			log.push('SYSTEM_TAB_ACTIVE_CHANGED_COMMAND')
+			emitter.emit(createNestCommand(SYSTEM_COMMAND, TAB_ACTIVE_CHANGED2_COMMAND))
+		}
+		const a3 = () => {
+			log.push('SYSTEM_TAB_ACTIVE_CHANGED2_COMMAND')
+		}
+		emitter.on(OPEN_LIST_COMMAND, a0)
+		emitter.on(createNestCommand(SYSTEM_COMMAND, DELETE_ITEM_COMMAND), a1)
+		emitter.on(createNestCommand(SYSTEM_COMMAND, TAB_ACTIVE_CHANGED_COMMAND), a2)
+		emitter.on(createNestCommand(SYSTEM_COMMAND, TAB_ACTIVE_CHANGED2_COMMAND), a3)
+		emitter.emit(createNestCommand(SYSTEM_COMMAND, DELETE_ITEM_COMMAND))
+		assert.deepEqual(log, [ 'SYSTEM_DELETE_ITEM', 'SYSTEM_TAB_ACTIVE_CHANGED_COMMAND', 'SYSTEM_TAB_ACTIVE_CHANGED2_COMMAND' ])
+		emitter.emit(OPEN_LIST_COMMAND)
+		assert.deepEqual(log, [ 'SYSTEM_DELETE_ITEM', 'SYSTEM_TAB_ACTIVE_CHANGED_COMMAND', 'SYSTEM_TAB_ACTIVE_CHANGED2_COMMAND', 'OPEN_LIST_COMMAND' ])
+	})
 })

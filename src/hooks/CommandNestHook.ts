@@ -41,6 +41,7 @@ export class CommandNestHook implements EmitterPlugin {
 	constructor() {
 		this.name = 'CommandNestHook';
 		this.commandMap = new Map()
+		this.tempAll = new Map()
 	}
 
 	register(hooks: EmitterHooks, parent: EmitterPlugin): void {
@@ -56,6 +57,10 @@ export class CommandNestHook implements EmitterPlugin {
 			name: this.name,
 			before: parent.name
 		}, this.afterEmit.bind(this))
+		// hooks.emitHook.tap({
+		// 	name: this.name,
+		// 	before: parent.name
+		// }, this.emit.bind(this))
 		hooks.offHook.tap({
 			name: this.name,
 			before: parent.name
@@ -244,10 +249,29 @@ export class CommandNestHook implements EmitterPlugin {
 			return true
 		}
 		debug('CommandNestHook, beforeEmit')
+		/**
+		 * 这里改写this.parent.all是为了在BaseHook中判断emit的时候，就根据当前command来
+		 * 但是有一个问题是
+		 * beforeEmit
+		 * 	emit
+		 * afterEmit
+		 * 这种结构时可以正常回调this.parent.all
+		 * 但是这种结构就不行了
+		 * beforeEmit
+		 * 	emit
+		 * 		beforeEmit
+		 *      	emit
+		 *      afterEmit
+		 * afterEmit
+		 * 在第二次beforeEmit的时候拿到的就是错误的this.parent.all
+		 * 如果要修改emit的话，那么会和FailEmit有冲突，导致有些测试执行失败
+		 * 所以这里改成不覆盖全部的all里面的command，而只覆盖当前command的监听
+		 */
 		if (command.commands && command.commands.length > 0) {
-			this.tempAll = this.parent.all!
-			this.parent.all = new Map()
-			this.parent.all.set(command, this.getListenersByCommands2(this.commandMap, 0, ...command.commands))
+			if (this.parent.all!.get(command)!){
+				this.tempAll.set(command, this.parent.all!.get(command)!)
+			}
+			this.parent.all!.set(command, this.getListenersByCommands2(this.commandMap, 0, ...command.commands))
 			return true
 		}
 		return false
@@ -257,8 +281,10 @@ export class CommandNestHook implements EmitterPlugin {
 		done: boolean,
 		command: MittCommand<unknown, unknown>,
 		args: AsArray<unknown>): boolean {
-		if (command.commands && command.commands.length > 0) {
-			this.parent.all = this.tempAll
+		if (command.commands && command.commands.length > 0
+			&& this.tempAll.get(command) !== undefined
+		) {
+			this.parent.all!.set(command, this.tempAll.get(command)!)
 		}
 		return true
 	}
