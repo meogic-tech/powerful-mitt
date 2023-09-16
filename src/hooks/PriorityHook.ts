@@ -64,8 +64,8 @@ export class PriorityHook implements EmitterPlugin {
 		}
 		for (let i = this.priorityArray.length-1; i >= 0; i--) {
 			const priorityArrayElement = this.priorityArray[i]
-			for (const [_, handlerInArray] of priorityArrayElement) {
-				if (listenerArrayInAll.indexOf(handlerInArray) > -1){
+			for (const [c, handlerInArray] of priorityArrayElement) {
+				if (c === command && listenerArrayInAll.indexOf(handlerInArray) > -1){
 					targetArray.push(handlerInArray)
 				}
 			}
